@@ -9,10 +9,12 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +22,9 @@ public class SecurityConfig {
 
 	@Autowired
 	private UserDetailsService userDetailsService;
+	
+	@Autowired
+	private JwtFilter jwtFilter;
 	
 	
 	//BCryptPasswordEncoder is used in Spring Security to securely hash user passwords before storing them in 
@@ -50,19 +55,21 @@ public class SecurityConfig {
 		
 		
 		http.authorizeHttpRequests(request->
-		request.requestMatchers("/login","register").permitAll().anyRequest().authenticated());//This is the authorization rule: every 
+		request.requestMatchers("/login","/register").permitAll().anyRequest().authenticated());//This is the authorization rule: every 
 		                                                                        //request, to any URL, needs a logged-in user.
 		
 		//Example: calling GET /notes without logging in is blocked. After login it works.
 		
 		
 		//http.formLogin(Customizer.withDefaults());
+		
 		//This turns on form-based login with Spring’s default settings. It adds the 
 		//This enables form-based login. provides ready-made login page at /login and POST /login handling.
 
         //Customizer.withDefaults() means “no custom settings, use the defaults”.
 		
 		http.httpBasic(Customizer.withDefaults());
+		
 		//This enables HTTP Basic Authentication.
 		//Here, you don't need a separate login page.
 
@@ -71,6 +78,10 @@ public class SecurityConfig {
 		
 		//If credentials are correct → Request is allowed.
 		//If credentials are incorrect → Request is rejected with 401 Unauthorized.
+		
+		http.sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		//SessionCreationPolicy   (enum: ALWAYS, IF_REQUIRED, NEVER, STATELESS)
+		http.addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class);
 		
 		return http.build();
 	}

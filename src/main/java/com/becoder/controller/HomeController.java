@@ -22,8 +22,8 @@ public class HomeController {
 	@GetMapping("/")
 	public ResponseEntity<?> login(HttpServletRequest http)
 	{
-		String id=http.getSession().getId();
-		return new ResponseEntity<>("Hello becoder id is"+id,HttpStatus.OK);
+		//String id=http.getSession().getId();
+		return new ResponseEntity<>("Hello becoder your dashboard",HttpStatus.OK);
 	}
 	
 	@PostMapping("/login")
