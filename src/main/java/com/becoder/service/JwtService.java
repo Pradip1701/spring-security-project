@@ -108,5 +108,4 @@ public class JwtService {
 		return expiredDate.before(new Date());
 	}
 
-
 }
